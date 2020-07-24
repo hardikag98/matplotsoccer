@@ -16,7 +16,7 @@ spadl_config = {
     "six_yard_box_width": 18.3,
     "penalty_spot_distance": 11,
     "goal_width": 7.3,
-    "goal_length": 2,
+    "goal_length": 0.5,
     "origin_x": 0,
     "origin_y": 0,
     "circle_radius": 9.15,
@@ -196,14 +196,10 @@ def _field(
     ax.add_patch(rightArc)
 
     # Tidy Axes
+    ax.set_xlim(-0.9,105.9)
+    ax.set_ylim(-0.4,68.4)
     plt.axis("off")
-
-    # Display Pitch
-    if figsize:
-        h, w = fig.get_size_inches()
-        newh, neww = figsize, w / h * figsize
-        fig.set_size_inches(newh, neww, forward=True)
-
+    
     if show:
         plt.show()
 
@@ -296,12 +292,14 @@ def actions(
     legloc="right",
     show=True,
     show_legend=True,
+    title='',
 ):
     ax = field(ax=ax, color=color, figsize=figsize, show=False)
     fig = plt.gcf()
-    figsize, _ = fig.get_size_inches()
-    arrowsize = math.sqrt(figsize)
+    figsize, _ = figsize
+    arrowsize = math.sqrt(figsize)/1.9
 
+    plt.title(title,loc='left',fontdict={'fontsize': 18})
     # SANITIZING INPUT
     location = np.asarray(location)
 
@@ -379,16 +377,18 @@ def actions(
 
         xmin = max(mx - d, 0) - zoompad
         xmax = min(mx + d, spadl_config["length"]) + zoompad
+        h = xmax - xmin
         ax.set_xlim(xmin, xmax)
         ymin = max(my - d, 0) - zoompad
         ymax = min(my + d, spadl_config["width"]) + zoompad
+        w = ymax - ymin
         ax.set_ylim(ymin, ymax)
 
-        h, w = fig.get_size_inches()
-        h, w = xmax - xmin, ymax - ymin
-        newh, neww = figsize, w / h * figsize
+        #h, w = fig.get_size_inches()
+        #h, w = xmax - xmin, ymax - ymin
+        #newh, neww = figsize, w / h * figsize
 
-        fig.set_size_inches(newh, neww, forward=True)
+        #fig.set_size_inches(newh, neww, forward=True)
         arrowsize = (w + h) / 2 / 105 * arrowsize
 
     eventmarkers = itertools.cycle(["s", "p", "h"])
@@ -398,7 +398,7 @@ def actions(
         if eventtype != "pass":
             eventmarkerdict[eventtype] = next(eventmarkers)
 
-    markersize = figsize * 2
+    markersize = figsize * 0.9
 
     def get_color(type_name, te):
         home_team = team[0]
@@ -466,19 +466,25 @@ def actions(
                     length_includes_head=True,
                     zorder=zaction,
                 )
-    # leg = plt.legend(loc=9,prop={'family': 'monospace','size':12})
+    #leg = plt.legend(loc=9,prop={'family': 'monospace','size':9})
     if show_legend:
         if legloc == "top":
             leg = plt.legend(
                 bbox_to_anchor=(0.5, 1.05),
                 loc="lower center",
-                prop={"family": "monospace"},
+                prop={"family": "monospace",'size':9},
             )
         elif legloc == "right":
             leg = plt.legend(
                 bbox_to_anchor=(1.05, 0.5),
                 loc="center left",
-                prop={"family": "monospace"},
+                prop={"family": "monospace",'size':9},
+            )
+        elif legloc == "bottom":
+            leg = plt.legend(
+                bbox_to_anchor=(0.05, 0.5),
+                loc="center left",
+                prop={"family": "monospace",'size':9},
             )
 
     if show:
@@ -500,3 +506,4 @@ def get_lines(labels):
     labels = [[l.ljust(maxlen[i]) for i, l in enumerate(ls)] for ls in labels]
 
     return [" | ".join(ls) for ls in labels]
+    
